@@ -42,6 +42,18 @@ func resourceArmKubernetesCluster() *schema.Resource {
 		},
 
 		CustomizeDiff: func(diff *schema.ResourceDiff, v interface{}) error {
+
+			servicePrincipal := diff.Get("service_principal").(*schema.Set)
+			identity := diff.Get("identity").(*schema.Set)
+
+			if servicePrincipal != nil && identity != nil {
+				return fmt.Errorf("service_principal and identity cannot be set together.")
+			}
+
+			if servicePrincipal = nil && identity = nil {
+				return fmt.Errorf("You have to set EITHER service_principal OR identity.")
+			}
+
 			if v, exists := diff.GetOk("network_profile"); exists {
 				rawProfiles := v.([]interface{})
 				if len(rawProfiles) == 0 {
@@ -112,7 +124,7 @@ func resourceArmKubernetesCluster() *schema.Resource {
 
 			"service_principal": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -589,7 +601,16 @@ func resourceArmKubernetesClusterCreate(d *schema.ResourceData, meta interface{}
 
 	// since the Create and Update use separate methods, there's no point extracting this out
 	servicePrincipalProfileRaw := d.Get("service_principal").([]interface{})
-	servicePrincipalProfileVal := servicePrincipalProfileRaw[0].(map[string]interface{})
+
+	// if service_principal is empty default to managed identity
+	if servicePrincipalProfileRaw = nil {
+		servicePrincipalProfileClientId := "msi"
+		servicePrincipalProfileSecret := nil
+	} else {
+		servicePrincipalProfileVal := servicePrincipalProfileRaw[0].(map[string]interface{})
+		servicePrincipalProfileClientId := servicePrincipalProfileVal["client_id"].(string)
+		servicePrincipalProfileSecret := servicePrincipalProfileVal["client_secret"].(string)
+	}
 
 	parameters := containerservice.ManagedCluster{
 		Name:     &name,
