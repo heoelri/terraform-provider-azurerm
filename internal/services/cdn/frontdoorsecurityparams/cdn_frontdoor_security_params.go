@@ -90,11 +90,12 @@ func expandSecurityPoliciesActivatedResourceReference(input []interface{}) *[]tr
 		if id := v["cdn_frontdoor_custom_domain_id"].(string); id != "" {
 			activatedResourceReference.ID = utils.String(id)
 
-			enabled := v["is_active"].(bool)
+			// This is a read-only field
+			// enabled := v["active"].(bool)
 
-			if !enabled {
-				activatedResourceReference.IsActive = utils.Bool(enabled)
-			}
+			// if !enabled {
+			// 	activatedResourceReference.IsActive = utils.Bool(enabled)
+			// }
 
 			results = append(results, activatedResourceReference)
 		}
@@ -103,15 +104,50 @@ func expandSecurityPoliciesActivatedResourceReference(input []interface{}) *[]tr
 	return &results
 }
 
-// func flattenCdnFrontdoorFirewallPolicyParameters(input track1.BasicSecurityPolicyPropertiesParameters) (map[string]interface{}, error) {
-// 	securityPolicy, ok := input.AsSecurityPolicyWebApplicationFirewallParameters()
-// 	if !ok {
-// 		return nil, fmt.Errorf("expected a security policy web application firewall parameters")
-// 	}
+func FlattenCdnFrontdoorFirewallPolicyParameters(input track1.BasicSecurityPolicyPropertiesParameters) ([]interface{}, error) {
+	waf, ok := input.AsSecurityPolicyWebApplicationFirewallParameters()
+	if !ok {
+		return nil, fmt.Errorf("expected security policy web application firewall parameters")
+	}
 
-// 	if wafId := securityPolicy.WafPolicy.ID; wafId != nil {
-// 		// TODO
-// 	}
+	// we know it's a firewall policy at this point,
+	// create the objects to hold the policy data
+	securityPolicy := make([]interface{}, 0)
+	firewall := make([]interface{}, 0)
+	associations := make([]interface{}, 0)
+	wafPolicy := make(map[string]interface{})
+	firewallPolicy := make(map[string]interface{})
 
-// 	return nil, nil
-// }
+	wafPolicy["cdn_frontdoor_firewall_policy_id"] = *waf.WafPolicy.ID
+
+	for _, item := range *waf.Associations {
+		association := make(map[string]interface{})
+		association["domain"] = flattenSecurityPoliciesActivatedResourceReference(item.Domains)
+		association["patterns_to_match"] = utils.FlattenStringSlice(item.PatternsToMatch)
+		associations = append(associations, association)
+	}
+
+	wafPolicy["association"] = associations
+	firewall = append(firewall, wafPolicy)
+	firewallPolicy["firewall"] = firewall
+	securityPolicy = append(securityPolicy, firewallPolicy)
+
+	return securityPolicy, nil
+}
+
+func flattenSecurityPoliciesActivatedResourceReference(input *[]track1.ActivatedResourceReference) []interface{} {
+	results := make([]interface{}, 0)
+	if input == nil {
+		return results
+	}
+
+	for _, item := range *input {
+		domain := make(map[string]interface{})
+		domain["cdn_frontdoor_custom_domain_id"] = *item.ID
+		domain["active"] = *item.IsActive
+
+		results = append(results, domain)
+	}
+
+	return results
+}

@@ -103,12 +103,12 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "test" {
-  name     = "acctest-afdx-%[1]d"
+  name     = "acctestRG-cdn-afdx-%[1]d"
   location = "%[2]s"
 }
 
 resource "azurerm_frontdoor_firewall_policy" "test" {
-  name                              = "testAccFrontDoorWAF%[1]d"
+  name                              = "testAccCdnFrontdoorFirewallPolicy%[1]d"
   resource_group_name               = azurerm_resource_group.test.name
   enabled                           = true
   mode                              = "Prevention"

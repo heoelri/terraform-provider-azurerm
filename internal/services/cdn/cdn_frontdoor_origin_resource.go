@@ -60,7 +60,7 @@ func resourceCdnFrontdoorOrigin() *pluginsdk.Resource {
 				Optional: true,
 			},
 
-			"enable_health_probes": {
+			"health_probes_enabled": {
 				Type:     pluginsdk.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -86,14 +86,12 @@ func resourceCdnFrontdoorOrigin() *pluginsdk.Resource {
 			},
 
 			// Must be a valid domain name, IP version 4, or IP version 6
-			"cdn_frontdoor_origin_host_header": {
+			"origin_host_header": {
 				Type:         pluginsdk.TypeString,
 				Optional:     true,
 				ValidateFunc: IsValidDomain,
 			},
 
-			// Property 'AfdOrigin.Priority' cannot be set to '10000000'. Acceptable values are within range [1, 5];
-			// Property 'AfdOrigin.Weight' cannot be set to '10000000'. Acceptable values are within range [1, 1000]"
 			"priority": {
 				Type:         pluginsdk.TypeInt,
 				Optional:     true,
@@ -141,18 +139,23 @@ func resourceCdnFrontdoorOriginCreate(d *pluginsdk.ResourceData, meta interface{
 		}
 	}
 
+	originHostHeader := d.Get("origin_host_header").(string)
+
 	props := track1.AFDOrigin{
 		AFDOriginProperties: &track1.AFDOriginProperties{
 			AzureOrigin:                 expandResourceReference(d.Get("cdn_frontdoor_origin_id").(string)),
-			EnabledState:                ConvertBoolToEnabledState(d.Get("enable_health_probes").(bool)),
+			EnabledState:                ConvertBoolToEnabledState(d.Get("health_probes_enabled").(bool)),
 			EnforceCertificateNameCheck: utils.Bool(d.Get("enforce_certificate_name_check").(bool)),
 			HostName:                    utils.String(d.Get("host_name").(string)),
 			HTTPPort:                    utils.Int32(int32(d.Get("http_port").(int))),
 			HTTPSPort:                   utils.Int32(int32(d.Get("https_port").(int))),
-			OriginHostHeader:            utils.String(d.Get("cdn_frontdoor_origin_host_header").(string)),
 			Priority:                    utils.Int32(int32(d.Get("priority").(int))),
 			Weight:                      utils.Int32(int32(d.Get("weight").(int))),
 		},
+	}
+
+	if originHostHeader != "" {
+		props.OriginHostHeader = utils.String(originHostHeader)
 	}
 
 	future, err := client.Create(ctx, id.ResourceGroup, id.ProfileName, id.OriginGroupName, id.OriginName, props)
@@ -197,13 +200,13 @@ func resourceCdnFrontdoorOriginRead(d *pluginsdk.ResourceData, meta interface{})
 			return fmt.Errorf("setting `cdn_frontdoor_origin_id`: %+v", err)
 		}
 
-		d.Set("enable_health_probes", ConvertEnabledStateToBool(&props.EnabledState))
+		d.Set("health_probes_enabled", ConvertEnabledStateToBool(&props.EnabledState))
 		d.Set("enforce_certificate_name_check", props.EnforceCertificateNameCheck)
 		d.Set("host_name", props.HostName)
 		d.Set("http_port", props.HTTPPort)
 		d.Set("https_port", props.HTTPSPort)
 		d.Set("cdn_frontdoor_origin_group_name", props.OriginGroupName)
-		d.Set("cdn_frontdoor_origin_host_header", props.OriginHostHeader)
+		d.Set("origin_host_header", props.OriginHostHeader)
 		d.Set("priority", props.Priority)
 		d.Set("weight", props.Weight)
 	}
@@ -221,18 +224,23 @@ func resourceCdnFrontdoorOriginUpdate(d *pluginsdk.ResourceData, meta interface{
 		return err
 	}
 
+	originHostHeader := d.Get("origin_host_header").(string)
+
 	props := track1.AFDOriginUpdateParameters{
 		AFDOriginUpdatePropertiesParameters: &track1.AFDOriginUpdatePropertiesParameters{
 			AzureOrigin:                 expandResourceReference(d.Get("cdn_frontdoor_origin_id").(string)),
-			EnabledState:                ConvertBoolToEnabledState(d.Get("enable_health_probes").(bool)),
+			EnabledState:                ConvertBoolToEnabledState(d.Get("health_probes_enabled").(bool)),
 			EnforceCertificateNameCheck: utils.Bool(d.Get("enforce_certificate_name_check").(bool)),
 			HostName:                    utils.String(d.Get("host_name").(string)),
 			HTTPPort:                    utils.Int32(int32(d.Get("http_port").(int))),
 			HTTPSPort:                   utils.Int32(int32(d.Get("https_port").(int))),
-			OriginHostHeader:            utils.String(d.Get("cdn_frontdoor_origin_host_header").(string)),
 			Priority:                    utils.Int32(int32(d.Get("priority").(int))),
 			Weight:                      utils.Int32(int32(d.Get("weight").(int))),
 		},
+	}
+
+	if originHostHeader != "" {
+		props.OriginHostHeader = utils.String(originHostHeader)
 	}
 
 	future, err := client.Update(ctx, id.ResourceGroup, id.ProfileName, id.OriginGroupName, id.OriginName, props)

@@ -117,26 +117,6 @@ func resourceCdnFrontdoorRoute() *pluginsdk.Resource {
 				},
 			},
 
-			"custom_domains": {
-				Type:     pluginsdk.TypeList,
-				Optional: true,
-
-				Elem: &pluginsdk.Resource{
-					Schema: map[string]*pluginsdk.Schema{
-
-						"id": {
-							Type:     pluginsdk.TypeString,
-							Optional: true,
-						},
-
-						"active": {
-							Type:     pluginsdk.TypeBool,
-							Computed: true,
-						},
-					},
-				},
-			},
-
 			"enabled": {
 				Type:     pluginsdk.TypeBool,
 				Optional: true,
@@ -146,7 +126,7 @@ func resourceCdnFrontdoorRoute() *pluginsdk.Resource {
 			"forwarding_protocol": {
 				Type:     pluginsdk.TypeString,
 				Optional: true,
-				Default:  string(track1.ForwardingProtocolHTTPSOnly),
+				Default:  string(track1.ForwardingProtocolMatchRequest),
 				ValidateFunc: validation.StringInSlice([]string{
 					string(track1.ForwardingProtocolHTTPOnly),
 					string(track1.ForwardingProtocolHTTPSOnly),
@@ -163,6 +143,7 @@ func resourceCdnFrontdoorRoute() *pluginsdk.Resource {
 			"link_to_default_domain": {
 				Type:     pluginsdk.TypeBool,
 				Optional: true,
+				Default:  true,
 			},
 
 			"cdn_frontdoor_origin_path": {
@@ -172,7 +153,7 @@ func resourceCdnFrontdoorRoute() *pluginsdk.Resource {
 
 			"patterns_to_match": {
 				Type:     pluginsdk.TypeList,
-				Optional: true,
+				Required: true,
 
 				Elem: &pluginsdk.Schema{
 					Type: pluginsdk.TypeString,
@@ -190,7 +171,7 @@ func resourceCdnFrontdoorRoute() *pluginsdk.Resource {
 
 			"supported_protocols": {
 				Type:     pluginsdk.TypeList,
-				Optional: true,
+				Required: true,
 				MaxItems: 2,
 
 				Elem: &pluginsdk.Schema{
@@ -238,7 +219,6 @@ func resourceCdnFrontdoorRouteCreate(d *pluginsdk.ResourceData, meta interface{}
 	props := track1.Route{
 		RouteProperties: &track1.RouteProperties{
 			CacheConfiguration:  expandRouteAfdRouteCacheConfiguration(d.Get("cache_configuration").([]interface{})),
-			CustomDomains:       expandRouteActivatedResourceReferenceArray(d.Get("custom_domains").([]interface{})),
 			EnabledState:        ConvertBoolToEnabledState(d.Get("enabled").(bool)),
 			ForwardingProtocol:  track1.ForwardingProtocol(d.Get("forwarding_protocol").(string)),
 			HTTPSRedirect:       ConvertBoolToRouteHttpsRedirect(d.Get("https_redirect").(bool)),
@@ -307,10 +287,6 @@ func resourceCdnFrontdoorRouteRead(d *pluginsdk.ResourceData, meta interface{}) 
 			return fmt.Errorf("setting `cache_configuration`: %+v", err)
 		}
 
-		if err := d.Set("custom_domains", flattenRouteActivatedResourceReferenceArray(props.CustomDomains)); err != nil {
-			return fmt.Errorf("setting `custom_domains`: %+v", err)
-		}
-
 		if err := d.Set("cdn_frontdoor_origin_group_id", flattenResourceReference(props.OriginGroup)); err != nil {
 			return fmt.Errorf("setting `cdn_frontdoor_origin_group_id`: %+v", err)
 		}
@@ -337,10 +313,18 @@ func resourceCdnFrontdoorRouteUpdate(d *pluginsdk.ResourceData, meta interface{}
 		return err
 	}
 
+	existing, err := client.Get(ctx, id.ResourceGroup, id.ProfileName, id.AfdEndpointName, id.RouteName)
+	if err != nil {
+		if utils.ResponseWasNotFound(existing.Response) {
+			return fmt.Errorf("checking for existing %s during update: %+v", id, err)
+		}
+
+		return fmt.Errorf("updating %s: %+v", id, err)
+	}
+
 	props := track1.RouteUpdateParameters{
 		RouteUpdatePropertiesParameters: &track1.RouteUpdatePropertiesParameters{
 			CacheConfiguration:  expandRouteAfdRouteCacheConfiguration(d.Get("cache_configuration").([]interface{})),
-			CustomDomains:       expandRouteActivatedResourceReferenceArray(d.Get("custom_domains").([]interface{})),
 			EnabledState:        ConvertBoolToEnabledState(d.Get("enabled").(bool)),
 			ForwardingProtocol:  track1.ForwardingProtocol(d.Get("forwarding_protocol").(string)),
 			HTTPSRedirect:       ConvertBoolToRouteHttpsRedirect(d.Get("https_redirect").(bool)),
@@ -350,6 +334,11 @@ func resourceCdnFrontdoorRouteUpdate(d *pluginsdk.ResourceData, meta interface{}
 			RuleSets:            expandRouteResourceReferenceArray(d.Get("cdn_frontdoor_rule_set_ids").([]interface{})),
 			SupportedProtocols:  expandRouteAFDEndpointProtocolsArray(d.Get("supported_protocols").([]interface{})),
 		},
+	}
+
+	// You must pass the Custom Domains if they exist else you will unassociate the route
+	if existing.RouteProperties.CustomDomains != nil {
+		props.CustomDomains = existing.RouteProperties.CustomDomains
 	}
 
 	if originPath := d.Get("cdn_frontdoor_origin_path").(string); originPath != "" {
@@ -389,6 +378,16 @@ func resourceCdnFrontdoorRouteDelete(d *pluginsdk.ResourceData, meta interface{}
 	return nil
 }
 
+func expandRouteAFDEndpointProtocolsArray(input []interface{}) *[]track1.AFDEndpointProtocols {
+	results := make([]track1.AFDEndpointProtocols, 0)
+
+	for _, item := range input {
+		results = append(results, track1.AFDEndpointProtocols(item.(string)))
+	}
+
+	return &results
+}
+
 func expandRouteResourceReferenceArray(input []interface{}) *[]track1.ResourceReference {
 	if len(input) == 0 || input[0] == nil {
 		return nil
@@ -400,16 +399,6 @@ func expandRouteResourceReferenceArray(input []interface{}) *[]track1.ResourceRe
 		results = append(results, track1.ResourceReference{
 			ID: utils.String(item.(string)),
 		})
-	}
-
-	return &results
-}
-
-func expandRouteAFDEndpointProtocolsArray(input []interface{}) *[]track1.AFDEndpointProtocols {
-	results := make([]track1.AFDEndpointProtocols, 0)
-
-	for _, item := range input {
-		results = append(results, track1.AFDEndpointProtocols(item.(string)))
 	}
 
 	return &results
@@ -440,40 +429,6 @@ func expandRouteAfdRouteCacheConfiguration(input []interface{}) *track1.AfdRoute
 	cacheConfiguration.CompressionSettings = compressionSettings
 
 	return cacheConfiguration
-}
-
-func expandRouteActivatedResourceReferenceArray(input []interface{}) *[]track1.ActivatedResourceReference {
-	results := make([]track1.ActivatedResourceReference, 0)
-	for _, item := range input {
-		v := item.(map[string]interface{})
-
-		results = append(results, track1.ActivatedResourceReference{
-			ID: utils.String(v["id"].(string)),
-		})
-	}
-	return &results
-}
-
-func flattenRouteActivatedResourceReferenceArray(inputs *[]track1.ActivatedResourceReference) []interface{} {
-	results := make([]interface{}, 0)
-	if inputs == nil {
-		return results
-	}
-
-	for _, input := range *inputs {
-		result := make(map[string]interface{})
-
-		if input.ID != nil {
-			result["id"] = *input.ID
-		}
-
-		if input.IsActive != nil {
-			result["active"] = *input.IsActive
-		}
-		results = append(results, result)
-	}
-
-	return results
 }
 
 func flattenRouteResourceReferenceArry(input *[]track1.ResourceReference) []interface{} {

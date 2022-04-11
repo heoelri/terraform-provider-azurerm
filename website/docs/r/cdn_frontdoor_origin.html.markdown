@@ -13,34 +13,34 @@ Manages a Frontdoor Origin.
 ## Example Usage
 
 ```hcl
-resource "azurerm_resource_group" "test" {
+resource "azurerm_resource_group" "example" {
   name     = "example-frontdoor-profile"
   location = "West Europe"
 }
 
-resource "azurerm_frontdoor_profile" "test" {
-  name                = "acctest-c-%d"
-  resource_group_name = azurerm_resource_group.test.name
+resource "azurerm_frontdoor_profile" "example" {
+  name                = "example-profile"
+  resource_group_name = azurerm_resource_group.example.name
 }
 
-resource "azurerm_cdn_frontdoor_origin_group" "test" {
-  name                     = "acctest-c-%d"
-  cdn_frontdoor_profile_id = azurerm_frontdoor_profile.test.id
+resource "azurerm_cdn_frontdoor_origin_group" "example" {
+  name                     = "example-originGroup"
+  cdn_frontdoor_profile_id = azurerm_frontdoor_profile.example.id
 }
 
-resource "azurerm_cdn_frontdoor_origin" "test" {
-  name                                  = "acctest-c-%d"
-  cdn_frontdoor_profile_origin_group_id = azurerm_cdn_frontdoor_origin_group.test.id
+resource "azurerm_cdn_frontdoor_origin" "example" {
+  name                                  = "example-origin"
+  cdn_frontdoor_profile_origin_group_id = azurerm_cdn_frontdoor_origin_group.example.id
   azure_origin_id                       = ""
 
-  enable_health_probes             = true
-  enforce_certificate_name_check   = false
-  host_name                        = ""
-  http_port                        = 0
-  https_port                       = 0
-  cdn_frontdoor_origin_host_header = ""
-  priority                         = 0
-  weight                           = 0
+  health_probes_enabled          = true
+  enforce_certificate_name_check = false
+  host_name                      = "contoso.com"
+  http_port                      = 0
+  https_port                     = 0
+  origin_host_header             = "www.contoso.com"
+  priority                       = 0
+  weight                         = 0
 }
 ```
 
@@ -54,9 +54,9 @@ The following arguments are supported:
 
 * `host_name` - (Required) The address of the origin. Domain names, IPv4 addresses, and IPv6 addresses are supported. This should be unique across all Frontdoor Origins in an Frontdoor Endpoints.
 
-* `Cdn_frontdoor_origin_id` - (Optional) Resource ID..
+* `cdn_frontdoor_origin_id` - (Optional) Resource ID.
 
-* `enable_health_probes` - (Optional) Are health probes enabled against backends defined under the backendPools? Health probes can only be disabled if there is a single enabled backend in single enabled backend pool. Possible values are `true` or `false`. Defaults to `true`.
+* `health_probes_enabled` - (Optional) Are health probes enabled against backends defined under the backendPools? Health probes can only be disabled if there is a single enabled backend in single enabled backend pool. Possible values are `true` or `false`. Defaults to `true`.
 
 * `enforce_certificate_name_check` - (Optional) Whether to enable certificate name check at origin level. Possible values are `true` or `false`. Defaults to `false`.
 
@@ -64,7 +64,7 @@ The following arguments are supported:
 
 * `https_port` - (Optional) The value of the HTTPS port. Must be between `1` and `65535`. Defaults to `443`.
 
-* `cdn_frontdoor_origin_host_header` - (Optional) The host header value sent to the origin with each request. If you leave this blank, the requests hostname determines this value. Azure Frontdoor Origins, such as Web Apps, Blob Storage, and Cloud Services require this host header value to match the origin hostname. This fields value overrides the host header defined in the Frontdoor Endpoint.
+* `origin_host_header` - (Optional) The host header value sent to the origin with each request. If you leave this blank, the requests hostname determines this value. Azure Frontdoor Origins, such as Web Apps, Blob Storage, and Cloud Services require this host header value to match the origin hostname. This fields value overrides the host header defined in the Frontdoor Endpoint.
 
 * `priority` - (Optional) Priority of origin in given origin group for load balancing. Higher priorities will not be used for load balancing if any lower priority origin is healthy.Must be between `1` and `5`(inclusive). Defaults to `1`.
 

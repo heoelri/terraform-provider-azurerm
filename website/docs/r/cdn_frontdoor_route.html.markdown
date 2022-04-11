@@ -13,38 +13,39 @@ Manages a Frontdoor Route.
 ## Example Usage
 
 ```hcl
-resource "azurerm_resource_group" "test" {
-  name     = "example-cdn"
+resource "azurerm_resource_group" "example" {
+  name     = "example-cdn-frontdoor"
   location = "West Europe"
 }
 
-resource "azurerm_cdn_frontdoor_profile" "test" {
-  name                = "acctest-c-%d"
-  resource_group_name = azurerm_resource_group.test.name
+resource "azurerm_cdn_frontdoor_profile" "example" {
+  name                = "example-profile"
+  resource_group_name = azurerm_resource_group.example.name
 }
 
-resource "frontdoor_origin_group" "test" {
-  name                     = "acctest-c-%d"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.test.id
+resource "frontdoor_origin_group" "example" {
+  name                     = "example-originGroup"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.example.id
 }
 
-resource "azurerm_frontdoor_endpoint" "test" {
-  name                     = "acctest-c-%d"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.test.id
+resource "azurerm_frontdoor_endpoint" "example" {
+  name                     = "example-endpoint"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.example.id
 }
 
-resource "azurerm_cdn_frontdoor_route" "test" {
-  name                          = "acctest-c-%d"
-  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.test.id
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.test.id
+resource "azurerm_cdn_frontdoor_route" "example" {
+  name                          = "example-route"
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.example.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.example.id
   enabled                       = true
 
+  cdn_frontdoor_origin_ids   = [azurerm_cdn_frontdoor_origin.example.id]
   forwarding_protocol        = "HttpsOnly"
   https_redirect             = true
   link_to_default_domain     = true
   patterns_to_match          = ["/*"]
   supported_protocols        = ["Http", "Https"]
-  cdn_frontdoor_rule_set_ids = [azurerm_cdn_frontdoor_rule_set.test.id]
+  cdn_frontdoor_rule_set_ids = [azurerm_cdn_frontdoor_rule_set.example.id]
 
   cache_configuration {
     query_string_caching_behavior = "IgnoreSpecifiedQueryStrings"
@@ -67,25 +68,27 @@ The following arguments are supported:
 
 * `cdn_frontdoor_origin_ids` - (Required) One or more Frontdoor Origin resource IDs this Frontdoor Route will link to. Changing this forces a new Frontdoor Route to be created.
 
+* `supported_protocols` - (Required) One or more Protocols supported by this Frontdoor Route. Possible values are `Http` or `Https`.
+
+* `patterns_to_match` - (Reqired) The route patterns of the rule.
+
 * `cache_configuration` - (Optional) A `cache_configuration` block as defined below.
 
 ~> **NOTE:** To to disable caching, do not provide the `cache_configuration` block in the configuration file. 
 
-* `custom_domains` - (Optional) A `custom_domains` block as defined below.
-
 * `enabled` - (Optional) Is this Frontdoor Route enabled? Possible values are `true` or `false`. Defaults to `true`.
 
-* `forwarding_protocol` - (Optional) The Protocol that will be use when forwarding traffic to backends. Possible values are `HttpOnly`, `HttpsOnly` or `MatchRequest`. Defaults to `HttpsOnly`.
+* `forwarding_protocol` - (Optional) The Protocol that will be use when forwarding traffic to backends. Possible values are `HttpOnly`, `HttpsOnly` or `MatchRequest`. Defaults to `MatchRequest`.
 
 * `https_redirect` - (Optional) Automatically redirect HTTP traffic to HTTPS traffic? Possible values are `true` or `false`. Defaults to `true`.
 
 ~> **NOTE:** The `https_redirect` rule is the first rule that will be executed.
 
-* `link_to_default_domain` - (Optional) Will this route be linked to the default domain endpoint? Possible values are `true` or `false`. Defaults to `false`.
+* `link_to_default_domain` - (Optional) Will this route be linked to the default domain endpoint? Possible values are `true` or `false`. Defaults to `true`.
+
+->**NOTE:** On initial creation of the Frontdoor Route resource in Terraform this value must always be set to `true` due to the Custom Domain workflow logic and the creation constraints of the Frontdoor Route resource that have been introduced with this version of Frontdoor.
 
 * `cdn_frontdoor_origin_path` - (Optional) A directory path on the origin that Frontdoor can use to retrieve content from(e.g. contoso.cloudapp.net/originpath).
-
-* `patterns_to_match` - (Optional) The route patterns of the rule.
 
 * `cdn_frontdoor_rule_set_ids` - (Optional) One or more Frontdoor Rule Set Resource ID's.
 
@@ -104,16 +107,6 @@ A `cache_configuration` block supports the following:
 ~> **NOTE:** Content won't be compressed when the requested content is smaller than `1 KB` or larger than `8 MB`(inclusive).
 
 * `content_types_to_compress` - (Optional) A list of one or more `Content types` (formerly known as `MIME types`) to compress. Possible values include `application/eot`, `application/font`, `application/font-sfnt`, `application/javascript`, `application/json`, `application/opentype`, `application/otf`, `application/pkcs7-mime`, `application/truetype`, `application/ttf`, `application/vnd.ms-fontobject`, `application/xhtml+xml`, `application/xml`, `application/xml+rss`, `application/x-font-opentype`, `application/x-font-truetype`, `application/x-font-ttf`, `application/x-httpd-cgi`, `application/x-mpegurl`, `application/x-opentype`, `application/x-otf`, `application/x-perl`, `application/x-ttf`, `application/x-javascript`, `font/eot`, `font/ttf`, `font/otf`, `font/opentype`, `image/svg+xml`, `text/css`, `text/csv`, `text/html`, `text/javascript`, `text/js`, `text/plain`, `text/richtext`, `text/tab-separated-values`, `text/xml`, `text/x-script`, `text/x-component` or `text/x-java-source`.
-
----
-
-A `custom_domains` block supports the following:
-
-* `id` - (Optional) Resource ID.
-
-* `active` - Is the custom domain active?
-
----
 
 ## Attributes Reference
 

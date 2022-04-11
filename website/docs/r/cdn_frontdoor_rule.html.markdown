@@ -10,36 +10,33 @@ description: |-
 
 Manages a Frontdoor Rule.
 
+!>**IMPORTANT:** To create the Frontdoor Rules resource successfully you **must** add a `depends_on` attribute to the `azurerm_cdn_frontdoor_rule` code block and reference both the `azurerm_cdn_frontdoor_origin` and the `azurerm_cdn_frontdoor_origin_group` that are associated with the Frontdoor Rule resource.
+
 ## Example Usage
 
 ```hcl
-resource "azurerm_resource_group" "test" {
-  name     = "example-cdn"
+resource "azurerm_resource_group" "example" {
+  name     = "example-cdn-frontdoor"
   location = "West Europe"
 }
 
-resource "azurerm_cdn_frontdoor_profile" "test" {
+resource "azurerm_cdn_frontdoor_profile" "example" {
   name                = "example-profile"
-  resource_group_name = azurerm_resource_group.test.name
+  resource_group_name = azurerm_resource_group.example.name
 }
 
-resource "azurerm_cdn_frontdoor_rule_set" "test" {
-  name                     = "exampleruleset"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.test.id
-}
-
-resource "azurerm_cdn_frontdoor_endpoint" "test" {
+resource "azurerm_cdn_frontdoor_endpoint" "example" {
   name                     = "example-endpoint"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.test.id
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.example.id
 
   tags = {
     endpoint = "contoso.com"
   }
 }
 
-resource "azurerm_cdn_frontdoor_origin_group" "test" {
-  name                     = "example-origin-group"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.test.id
+resource "azurerm_cdn_frontdoor_origin_group" "example" {
+  name                     = "example-originGroup"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.example.id
 
   health_probe {
     interval_in_seconds = 240
@@ -68,13 +65,13 @@ resource "azurerm_cdn_frontdoor_origin_group" "test" {
   restore_traffic_or_new_endpoints_time = 10
 }
 
-resource "azurerm_cdn_frontdoor_origin" "test" {
+resource "azurerm_cdn_frontdoor_origin" "example" {
   name                          = "example-origin"
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.test.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.example.id
 
   enable_health_probes           = true
   enforce_certificate_name_check = false
-  host_name                      = azurerm_cdn_frontdoor_endpoint.test.host_name
+  host_name                      = azurerm_cdn_frontdoor_endpoint.example.host_name
   http_port                      = 80
   https_port                     = 443
   origin_host_header             = "contoso.com"
@@ -82,17 +79,22 @@ resource "azurerm_cdn_frontdoor_origin" "test" {
   weight                         = 500
 }
 
-resource "azurerm_cdn_frontdoor_rule" "test" {
-  depends_on = [azurerm_cdn_frontdoor_origin_group.test, azurerm_cdn_frontdoor_origin.test]
+resource "azurerm_cdn_frontdoor_rule_set" "example" {
+  name                     = "exampleruleset"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.example.id
+}
+
+resource "azurerm_cdn_frontdoor_rule" "example" {
+  depends_on = [azurerm_cdn_frontdoor_origin_group.example, azurerm_cdn_frontdoor_origin.example]
 
   name                      = "examplerule"
-  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.test.id
+  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.example.id
   order                     = 1
   match_processing_behavior = "Continue"
 
   actions {
     route_configuration_override_action {
-      cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.test.id
+      cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.example.id
       forwarding_protocol           = "HttpsOnly"
       query_string_caching_behavior = "IncludeSpecifiedQueryStrings"
       query_string_parameters       = ["foo", "clientIp={client_ip}"]
@@ -154,11 +156,11 @@ The following arguments are supported:
 
 * `name` - (Required) The name which should be used for this Frontdoor Rule. Changing this forces a new Frontdoor Rule to be created.
 
-* `cdn_frontdoor_rule_set_id` - (Required) The ID of the Frontdoor Rule. Changing this forces a new Frontdoor Rule to be created.
+* `cdn_frontdoor_rule_set_id` - (Required) The resource ID of the Frontdoor Rule Set for this Frontdoor Rule. Changing this forces a new Frontdoor Rule to be created.
 
 * `order` - (Required) The order in which the rules will be applied for the Frontdoor Endpoint. The order value should be sequential and begin at `1`(e.g. `1`, `2`, `3`...). A Frontdoor Rule with a lesser order value will be applied before a rule with a greater order value.
 
-~>**NOTE:** If the Frontdoor Rule has an order value of `0` they do not require any conditions or actions and they will always be applied.
+~>**NOTE:** If the Frontdoor Rule has an order value of `0` they do not require any conditions and the actions will always be applied.
 
 * `match_processing_behavior` - (Optional) If this rule is a match should the rules engine continue processing the remaining rules or stop? Possible values are `Continue` and `Stop`. Defaults to `Continue`.
 
@@ -220,7 +222,7 @@ A `route_configuration_override_action` block supports the following:
 
 * `cache_behavior` - (Optional) `HonorOrigin` Frontdoor will always honor origin response header directive. If the origin directive is missing, Frontdoor will cache contents anywhere from `1` to `3` days. `OverrideAlways` the TTL value returned from your origin is overwritten with the value specified in the action. This behavior will only be applied if the response is cacheable. `OverrideIfOriginMissing` if no TTL value gets returned from your origin, the rule sets the TTL to the value specified in the action. This behavior will only be applied if the response is cacheable. Possible values include `HonorOrigin`, `OverrideAlways` or `OverrideIfOriginMissing`. Defaults to `HonorOrigin`.
 
-* `cache_duration` - (Required) When Cache behavior is set to `Override` or `SetIfMissing`, this field specifies the cache duration to use. The maximum duration is 366 days specified in the `d.hh:mm:ss` format(e.g. `365.23:59:59`). 
+* `cache_duration` - (Required) When Cache behavior is set to `Override` or `SetIfMissing`, this field specifies the cache duration to use. The maximum duration is 366 days specified in the `d.HH:MM:SS` format(e.g. `365.23:59:59`). If the desired maximum cache duration is less than 1 day then the maximum cache duration should be specified in the `HH:MM:SS` format(e.g. `23:59:59`).
 
 ---
 

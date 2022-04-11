@@ -14,14 +14,14 @@ Manages an Azure CDN Front Door Firewall Policy instance.
 
 ```hcl
 resource "azurerm_resource_group" "example" {
-  name     = "example-rg"
+  name     = "example-cdn-frontdoor"
   location = "West Europe"
 }
 
 resource "azurerm_cdn_Frontdoor_profile" "example" {
   name                = "example-profile"
   resource_group_name = azurerm_resource_group.example.name
-  sku_name            = "Premium_AzureFrontdoor"
+  sku_name            = "Premium_AzureFrontDoor"
 }
 
 resource "azurerm_cdn_frontdoor_firewall_policy" "example" {
@@ -152,6 +152,8 @@ The following arguments are supported:
 * `managed_rule` - (Optional) One or more `managed_rule` blocks as defined below.
 
 * `sku_name` - (Optional) The sku's pricing tier for this Cdn Frontdoor firewall policy. Possible values include`Standard_AzureFrontdoor` or `Premium_AzureFrontdoor`. Defaluts to `Standard_AzureFrontdoor`.
+
+->**NOTE:** The `Standard_AzureFrontdoor` firewall policy sku may contain `custom` rules only. The `Premium_AzureFrontdoor` Firewall policy skus may contain both `custom` and `managed` rules.
 
 * `tags` - (Optional) A mapping of tags to assign to the Web Application Firewall Policy.
 

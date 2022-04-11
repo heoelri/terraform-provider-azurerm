@@ -13,19 +13,19 @@ Manages a Frontdoor Origin Group.
 ## Example Usage
 
 ```hcl
-resource "azurerm_resource_group" "test" {
-  name     = "example-cdn"
+resource "azurerm_resource_group" "example" {
+  name     = "example-cdn-frontdoor"
   location = "West Europe"
 }
 
-resource "azurerm_cdn_frontdoor_profile" "test" {
-  name                = "acctest-c-%d"
-  resource_group_name = azurerm_resource_group.test.name
+resource "azurerm_cdn_frontdoor_profile" "example" {
+  name                = "example-profile"
+  resource_group_name = azurerm_resource_group.example.name
 }
 
-resource "azurerm_cdn_frontdoor_origin_group" "test" {
-  name                         = "acctest-c-%d"
-  cdn_cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.test.id
+resource "azurerm_cdn_frontdoor_origin_group" "example" {
+  name                         = "example-originGroup"
+  cdn_cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.example.id
 
   health_probe {
     interval_in_seconds = 240
@@ -53,9 +53,9 @@ The following arguments are supported:
 
 * `cdn_frontdoor_profile_id` - (Required) The ID of the Frontdoor Profile. Changing this forces a new Frontdoor Origin Group to be created.
 
-* `health_probe` - (Optional) A `health_probe` block as defined below.
+* `load_balancing` - (Required) A `load_balancing` block as defined below.
 
-* `load_balancing` - (Optional) A `load_balancing` block as defined below.
+* `health_probe` - (Optional) A `health_probe` block as defined below.
 
 * `session_affinity` - (Optional) Whether to allow session affinity on this host. Possible values are `true` or `false`. Defaults to `true`.
 

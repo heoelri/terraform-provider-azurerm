@@ -79,13 +79,13 @@ func TestAccCdnFrontdoorEndpoint_update(t *testing.T) {
 }
 
 func (r CdnFrontdoorProfileEndpointResource) Exists(ctx context.Context, clients *clients.Client, state *pluginsdk.InstanceState) (*bool, error) {
-	id, err := parse.EndpointID(state.ID)
+	id, err := parse.FrontdoorEndpointID(state.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	client := clients.Cdn.FrontDoorEndpointsClient
-	resp, err := client.Get(ctx, id.ResourceGroup, id.ProfileName, id.Name)
+	resp, err := client.Get(ctx, id.ResourceGroup, id.ProfileName, id.ProfileName)
 	if err != nil {
 		if utils.ResponseWasNotFound(resp.Response) {
 			return utils.Bool(false), nil
@@ -102,7 +102,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "test" {
-  name     = "acctest-afdx-%d"
+  name     = "acctestRG-cdn-afdx-%d"
   location = "%s"
 }
 
@@ -151,10 +151,9 @@ func (r CdnFrontdoorProfileEndpointResource) complete(data acceptance.TestData) 
 			%s
 
 resource "azurerm_cdn_frontdoor_endpoint" "test" {
-  name                            = "acctest-c-%d"
-  cdn_frontdoor_profile_id        = azurerm_cdn_frontdoor_profile.test.id
-  enabled_state                   = true
-  origin_response_timeout_seconds = 120
+  name                     = "acctest-c-%d"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.test.id
+  enabled                  = true
 
   tags = {
     ENV = "Test"
@@ -169,10 +168,9 @@ func (r CdnFrontdoorProfileEndpointResource) update(data acceptance.TestData) st
 			%s
 
 resource "azurerm_cdn_frontdoor_endpoint" "test" {
-  name                            = "acctest-c-%d"
-  cdn_frontdoor_profile_id        = azurerm_cdn_frontdoor_profile.test.id
-  enabled_state                   = false
-  origin_response_timeout_seconds = 120
+  name                     = "acctest-c-%d"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.test.id
+  enabled                  = false
 
   tags = {
     ENV      = "Test"
