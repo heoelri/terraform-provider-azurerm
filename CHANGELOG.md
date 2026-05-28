@@ -5,6 +5,7 @@ ENHANCEMENTS:
 FEATURES:
 
 BUG FIXES:
+* `azurerm_site_recovery_vmware_replicated_vm` - fixes  a bug where`test_subnet_name` not set correctly [GH-467]
 
 ## 4.74.0 (May 21, 2026)
 
