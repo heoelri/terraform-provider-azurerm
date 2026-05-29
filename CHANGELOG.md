@@ -1,6 +1,7 @@
 ## 4.76.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_data_protection_backup_instance_data_lake_storage` - add FriendlyName on Create to align with other backup instance resources [GH-471]
 
 FEATURES:
 
