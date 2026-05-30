@@ -1,6 +1,7 @@
 ## 4.77.0 (Unreleased)
 
 ENHANCEMENTS:
+* dependencies: `azurerm_cdn_frontdoor` - update API version to `2025-12-01` [GH-473]
 
 FEATURES:
 
