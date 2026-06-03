@@ -5,6 +5,7 @@ ENHANCEMENTS:
 FEATURES:
 
 BUG FIXES:
+`azurerm_netapp_volume_group_oracle` - fix validation for the `application_identifier` property [GH-476]
 
 ## 4.77.0 (Unreleased)
 
