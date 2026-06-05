@@ -1,6 +1,7 @@
 ## 4.79.0 (Unreleased)
 
 ENHANCEMENTS:
+* dependencies: update `go-azure-sdk` to `v0.20260603.1074745` [GH-481]
 
 FEATURES:
 
