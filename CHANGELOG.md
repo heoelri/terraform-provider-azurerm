@@ -1,6 +1,7 @@
 ## 4.87.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_virtual_network_gateway`: Add support for `max_scale_unit` and `min_scale_unit` [GH-509]
 
 FEATURES:
 
