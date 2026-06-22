@@ -1,6 +1,7 @@
 ## 4.88.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_postgresql_flexible_server` add Ddsv6 skus to validation  [GH-511]
 
 FEATURES:
 
