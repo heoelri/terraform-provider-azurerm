@@ -1,6 +1,7 @@
 ## 4.89.0 (Unreleased)
 
 ENHANCEMENTS:
+* `desktopvirtualization` - upgrade API version to `2025-10-10` [GH-516]
 
 FEATURES:
 
