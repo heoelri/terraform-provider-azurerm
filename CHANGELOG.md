@@ -5,6 +5,7 @@ ENHANCEMENTS:
 FEATURES:
 
 BUG FIXES:
+`azurerm_machine_learning_datastore_fileshare` - fix 5.0 migration bug for the `storage_fileshare_id` property [GH-525]
 
 ## 4.89.0 (Unreleased)
 
