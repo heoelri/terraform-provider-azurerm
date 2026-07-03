@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* **New List Resource**: `azurerm_monitor_scheduled_query_rules_alert`  [GH-526]
 
 BUG FIXES:
 
