@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* **New Resource**: `azurerm_storage_account_table_properties` [GH-527]
 
 BUG FIXES:
 
