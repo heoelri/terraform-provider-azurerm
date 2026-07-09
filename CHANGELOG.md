@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* New Resource: `azurerm_kubernetes_automatic_cluster` [GH-531]
 
 BUG FIXES:
 
