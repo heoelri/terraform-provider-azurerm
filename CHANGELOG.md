@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* **New List Resource**: `azurerm_federated_identity_credential` [GH-534]
 
 BUG FIXES:
 
