@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* **New List Resource**: `azurerm_backup_policy_vm` [GH-535]
 
 BUG FIXES:
 
