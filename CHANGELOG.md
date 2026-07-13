@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* `azurerm_servicebus_subscription` - added new provider feature flag that will remove the "$Default" rule immediately on new subscription creation [GH-539]
 
 BUG FIXES:
 
