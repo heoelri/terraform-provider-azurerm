@@ -5,6 +5,7 @@ ENHANCEMENTS:
 FEATURES:
 
 BUG FIXES:
+* `azurerm_cdn_frontdoor_custom_domain` - fix a validation regression that prevented previously valid wildcard inputs to the `host_name` property [GH-541]
 
 ## 4.96.0 (Unreleased)
 
