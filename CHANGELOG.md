@@ -1,6 +1,7 @@
 ## 4.98.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_container_registry` - the `trust_policy_enabled` property has been deprecated and removed from the provider [GH-549]
 
 FEATURES:
 
