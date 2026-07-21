@@ -1,6 +1,7 @@
 ## 4.99.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_dashboard_grafana` - the `11` value for the `grafana_major_version` property has been deprecated and the property now supports `13` [GH-552]
 
 FEATURES:
 
