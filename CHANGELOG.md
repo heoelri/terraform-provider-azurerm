@@ -1,6 +1,7 @@
 ## 4.100.0 (Unreleased)
 
 ENHANCEMENTS:
+`azurerm_windows_web_app` - add support for `~24` to `site_config.application_stack.node_version` [GH-557]
 
 FEATURES:
 
