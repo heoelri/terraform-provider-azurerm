@@ -1,6 +1,7 @@
 ## 4.101.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_managed_devops_pool` - add support for the `CreatorOnly` value to `azure_devops_organization.permission.kind` property [GH-574]
 
 FEATURES:
 
