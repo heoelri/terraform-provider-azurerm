@@ -1,6 +1,7 @@
 ## 4.102.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_role_assignment` - the `condition`, `condition_version`, and `description` properties can now be updated in-place [GH-592]
 
 FEATURES:
 
