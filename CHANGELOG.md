@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* **New Resource**: `azurerm_playwright_workspace` [GH-600]
 
 BUG FIXES:
 
