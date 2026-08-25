@@ -1,6 +1,7 @@
 ## 4.104.0 (Unreleased)
 
 ENHANCEMENTS:
+* dependencies: `sql` - update API version to `2025-01-01` [GH-602]
 
 FEATURES:
 
