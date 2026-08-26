@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* `azurerm_site_recovery_replicated_vm` - add update support for `managed_disk` block without requirement of new resource  [GH-604]
 
 BUG FIXES:
 
