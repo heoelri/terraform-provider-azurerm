@@ -1,6 +1,7 @@
 ## 4.107.0 (Unreleased)
 
 ENHANCEMENTS:
+* Data Source: `azurerm_ip_group` - export attributes `firewall_ids` and `firewall_policy_ids` [GH-610]
 
 FEATURES:
 
