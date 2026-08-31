@@ -3,6 +3,7 @@
 ENHANCEMENTS:
 
 FEATURES:
+* **NEW LIST RESOURCE** - `arc_kubernetes_provisioned_cluster` [GH-611]
 
 BUG FIXES:
 
