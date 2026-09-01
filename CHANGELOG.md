@@ -1,6 +1,7 @@
 ## 4.110.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_storage_table` - add support for AAD authentication [GH-613]
 
 FEATURES:
 
