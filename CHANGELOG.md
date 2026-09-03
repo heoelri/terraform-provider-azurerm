@@ -1,6 +1,7 @@
 ## 4.111.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_linux_web_app`, `linux_web_app_slot` - add support for the `8.5` value in the  `site_config.application_stack.php_version` property [GH-617]
 
 FEATURES:
 
