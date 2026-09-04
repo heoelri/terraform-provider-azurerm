@@ -1,6 +1,7 @@
 ## 4.112.0 (Unreleased)
 
 ENHANCEMENTS:
+* `azurerm_storage_account` - add support for the `public_network_access` property [GH-619]
 
 FEATURES:
 
