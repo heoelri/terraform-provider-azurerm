@@ -1,6 +1,7 @@
 ## 4.113.0 (Unreleased)
 
 ENHANCEMENTS:
+`azurerm_log_analytics_workspace` - add support for the `50` value in the `reservation_capacity_in_gb_per_day` property  [GH-622]
 
 FEATURES:
 
