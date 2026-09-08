@@ -1,6 +1,7 @@
 ## 4.114.0 (Unreleased)
 
 ENHANCEMENTS:
+* **New List Resource**: `azurerm_cdn_frontdoor_origin` [GH-623]
 
 FEATURES:
 
