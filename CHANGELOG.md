@@ -1,6 +1,7 @@
 ## 4.116.0 (Unreleased)
 
 ENHANCEMENTS:
+* **New Resource**: `azurerm_storage_discovery_workspace` [GH-633]
 
 FEATURES:
 
