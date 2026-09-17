@@ -1,6 +1,7 @@
 ## 4.117.0 (Unreleased)
 
 ENHANCEMENTS:
+* dependencies: `qumulo` - update API version to `2026-04-16` [GH-637]
 
 FEATURES:
 
